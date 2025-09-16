@@ -128,4 +128,78 @@
 
 ---
 
+## 七、项目实现说明
+
+本仓库基于上述需求文档实现了一个可直接生成 HTML 行程方案的 **`itinerary_generator`** Python 包。核心特性如下：
+
+* 预置东京、云南大理、巴黎等热门目的地的主题活动、图片和美食/伴手礼/体验推荐，并提供通用目的地兜底方案。
+* 根据预算、人数自动推算推荐天数和预算分配，生成包含封面、行程概览、每日活动卡片、贴心提示及联系方式的精美 HTML。
+* 提供命令行工具与 Python API，方便旅行顾问、销售或个人用户快速产出可发送给客户的初步方案。
+
+### 目录结构
+
+```
+src/
+  itinerary_generator/
+    data.py            # 目的地静态资料与图片
+    generator.py       # 行程计算与预算分配逻辑
+    renderer.py        # HTML 模板与样式渲染
+    cli.py             # 命令行入口
+tests/
+  test_generator.py    # 核心功能单元测试
+```
+
+### 安装与运行
+
+1. 确保本地 Python ≥ 3.10。
+2. 在仓库根目录执行（可选）创建虚拟环境并安装依赖：
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows 使用 .venv\Scripts\activate
+pip install -r requirements.txt  # 如无需额外依赖可跳过
+pip install -e .                 # 可编辑安装，便于直接调用 CLI
+```
+
+> 项目仅依赖标准库运行测试时需安装 `pytest`（见下方测试章节）。
+
+### 命令行示例
+
+```bash
+python -m itinerary_generator "日本东京" 24000 2 --output tokyo.html
+```
+
+*第一个参数为目的地，第二个为预算（默认视作总预算），第三个为人数。可选参数：*
+
+* `--per-person` 表示输入预算为人均金额；
+* `--currency-symbol` 设置货币符号；
+* `--contact-phone / --contact-wechat / --contact-email / --contact-company` 自定义联系信息；
+* `--cta-link / --cta-label` 自定义“立即预订”按钮。
+
+执行后会在指定路径生成一份响应式 HTML 文件，可直接发送给客户或嵌入网页、H5 页面。
+
+### 作为 Python 库调用
+
+```python
+from itinerary_generator import TravelItineraryGenerator, render_itinerary_html
+
+generator = TravelItineraryGenerator()
+itinerary = generator.generate_itinerary("云南大理", budget=12000, travellers=3)
+html = render_itinerary_html(itinerary)
+
+with open("dali.html", "w", encoding="utf-8") as fp:
+    fp.write(html)
+```
+
+### 测试
+
+项目使用 `pytest` 进行单元测试验证行程生成、别名解析和 HTML 渲染：
+
+```bash
+pip install pytest
+pytest
+```
+
+---
+
 
